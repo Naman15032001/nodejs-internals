@@ -1,4 +1,6 @@
 # nodejs-internals
 
-1)Implemneted own event emitter in Node.js
-2)Created a node js udp server
+<ol>
+  <li>Implemneted own event emitter in Node.js</li>
+  <li>Created a node js udp server</li>
+</ol>

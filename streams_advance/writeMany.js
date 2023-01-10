@@ -48,13 +48,33 @@
 
 // })()
 
-const fs = require('node:fs/promises');
+// const fs = require('node:fs/promises');
 
 //dont do it this way
 
 //cpu usuage 100%
 
-//682.085ms  // memory -154 mb
+//682.085ms  // memory -154 mb 200mb
+// (async () => {
+
+//     console.time("writeMany");
+
+//     const fileHandle = await fs.open("test.txt", "w");
+
+//     const stream = fileHandle.createWriteStream()
+
+//     for (let i = 0; i < 1000000; i++) {
+//         const buff = Buffer.from(` ${i} `, 'utf-8')
+//         stream.write(buff);
+//     }
+
+//     console.timeEnd("writeMany");
+
+// })()
+
+const fs = require('node:fs/promises');
+
+
 (async () => {
 
     console.time("writeMany");
@@ -63,14 +83,65 @@ const fs = require('node:fs/promises');
 
     const stream = fileHandle.createWriteStream()
 
-    for (let i = 0; i < 1000000; i++) {
-        const buff = Buffer.from(` ${i} `, 'utf-8')
-        stream.write(buff);
+    // console.log(stream.writableHighWaterMark);
+
+    /*console.log(stream.writableLength);
+
+    const buff = Buffer.from("string");
+
+    stream.write(buff);
+    stream.write(buff);
+
+    console.log(buff);
+
+    console.log(stream.writableLength);*/
+
+    //const buff = Buffer.alloc(16384,10); //number fill 10
+
+    //console.log(buff);
+
+    // const buff = Buffer.alloc(16383, "a")
+
+
+    // console.log(stream.write(buff));
+    // console.log(stream.write(Buffer.alloc(1, "a")));
+
+    // stream.on("drain", () => {
+    //     console.log('safe to write more');
+    //     console.log(stream.write(Buffer.alloc(1, "a")));
+    //     console.log(stream.writableLength);
+    // })
+
+    let i = 0;
+    const writeMany = () => {
+        while (i < 1000000) {
+            const buff = Buffer.from(` ${i} `, 'utf-8');
+
+            if(i===999999){
+                return stream.end(buff)
+            }
+
+            if (!stream.write(buff)) {
+                break;
+            }
+
+            i++;
+        }
     }
 
-    console.timeEnd("writeMany");
+    writeMany();
+
+    stream.on("drain", () => {
+        writeMany();
+    })
+
+    stream.on("finish",()=>{
+        console.timeEnd("writeMany");
+        fileHandle.close();
+    })
+
+    //backpressure
 
 })()
 
-
-
+//50 mbs 

@@ -1,7 +1,6 @@
-const {
-    time
-} = require('node:console');
 const fs = require('node:fs/promises');
+
+const { pipeline } = require('stream');
 
 // (async () => {
 
@@ -17,6 +16,42 @@ const fs = require('node:fs/promises');
 
 // })();
 
+// (async () => {
+
+
+//     console.time("copy");
+
+//     const destFile = await fs.open("test-copy.txt", "w");
+//     const srcFile = await fs.open("test.txt", "r");
+
+//     //console.log(await srcFile.read());
+
+//     //const readResult = await srcFile.read();
+
+//     let bytesRead = -1;
+
+//     while (bytesRead !== 0) {
+//         const readResult = await srcFile.read();
+//         bytesRead = readResult.bytesRead;
+
+//         if (bytesRead != 16384) {
+//             const indexOfNotFilled = readResult.buffer.indexOf(0);
+//             const newBuffer = Buffer.alloc(indexOfNotFilled);
+//             readResult.buffer.copy(newBuffer, 0, 0, indexOfNotFilled);
+//             destFile.write(newBuffer);
+//         }else{
+//             destFile.write(readResult.buffer)
+//         }
+
+//     }
+
+//     console.timeEnd("copy");
+
+//     //await destFile.write(result)
+
+// })();
+
+
 (async () => {
 
 
@@ -25,29 +60,20 @@ const fs = require('node:fs/promises');
     const destFile = await fs.open("test-copy.txt", "w");
     const srcFile = await fs.open("test.txt", "r");
 
-    //console.log(await srcFile.read());
+    const readStream = srcFile.createReadStream();
+    const writeStream = destFile.createWriteStream();
 
-    //const readResult = await srcFile.read();
+    // readStream.pipe(writeStream);
 
-    let bytesRead = -1;
+    // readStream.on("end", () => {
+    //     console.timeEnd("copy");
+    // })
 
-    while (bytesRead !== 0) {
-        const readResult = await srcFile.read();
-        bytesRead = readResult.bytesRead;
+    pipeline(readStream, writeStream , (err)=>{
+        console.log(err);
+        console.timeEnd("copy");
+    });
 
-        if (bytesRead != 16384) {
-            const indexOfNotFilled = readResult.buffer.indexOf(0);
-            const newBuffer = Buffer.alloc(indexOfNotFilled);
-            readResult.buffer.copy(newBuffer, 0, 0, indexOfNotFilled);
-            destFile.write(newBuffer);
-        }else{
-            destFile.write(readResult.buffer)
-        }
- 
-    }
 
-    console.timeEnd("copy");
-
-    //await destFile.write(result)
 
 })();
